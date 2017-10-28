@@ -1,4 +1,4 @@
-local Vector = {}
+local Vector = {CLASS = "Vector"}
 Vector.__index = Vector
 
 function Vector:create(x,y,z)
@@ -8,6 +8,12 @@ function Vector:create(x,y,z)
 		--the metatable of instance would be whoever owns this create
 	      --so you can :  a = State:create();  b = a:create();  grandfather-father-son
 	-- Asserts
+	if type(x) == "table" and x.CLASS == "Vector" then
+		instance.x = x.x
+		instance.y = x.y
+		instance.z = x.z
+		return instance
+	end
 	if 	type(x) ~= "number" or 
 		type(y) ~= "number" or 
 		type(z) ~= "number" then
@@ -46,6 +52,13 @@ end
 function Vector.__mul(a,b)
 	return a.x * b.x + a.y * b.y + a.z * b.z
 end
+
+function Vector.__eq(a,b)
+	return a.x == b.x and a.y == b.y and a.z == b.z
+end
+
+--function Vector.__lt(a,b)  <
+--function Vector.__le(a,b)  <=
 
 function Vector:__tostring()
 	return "(" .. self.x .. "," .. self.y .. "," .. self.z .. ")"
