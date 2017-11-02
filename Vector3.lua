@@ -7,7 +7,8 @@ function Vector3:create(x,y,z)
 	self.__index = self
 		--the metatable of instance would be whoever owns this create
 	      --so you can :  a = State:create();  b = a:create();  grandfather-father-son
-	-- Asserts
+
+	-- Asserts and add data
 	if type(x) == "table" and x.CLASS == "Vector3" then
 		instance.x = x.x
 		instance.y = x.y
@@ -22,20 +23,41 @@ function Vector3:create(x,y,z)
 		instance.z = z
 		return instance
 	end
+
+	if 	type(x) == "nil" and
+		type(y) == "nil" and
+		type(z) == "nil" then
+		instance.x = 0
+		instance.y = 0
+		instance.z = 0
+		return instance
+	end
 	
-	-- add data
+	-- If invalid, return (0,0,0)
+		-- ? or just return nil ?
+	print("Vector3 create invalid")
 	instance.x = 0
 	instance.y = 0
 	instance.z = 0
 	return instance
 end
 
+-------------------------------------------------------------------------
+-- every operator below should not change the parameters, like a:nor() return a new Vector
+-- for example if b = a:nor(), then a remains the same and b is a's normalization
+-- rotation is also like this
+
+-- c = a + b
 function Vector3.__add(a,b)
-	local c = Vector3:create()
-	c.x = a.x + b.x
-	c.y = a.y + b.y
-	c.z = a.z + b.z
-	return c
+	if 	type(a) == "table" and a.CLASS == "Vector3" and
+		type(b) == "table" and b.CLASS == "Vector3" then
+		local c = Vector3:create()
+		c.x = a.x + b.x
+		c.y = a.y + b.y
+		c.z = a.z + b.z
+		return c
+	end
+	return Vector3:create()
 end
 
 function Vector3.__unm(b)
@@ -49,6 +71,8 @@ function Vector3.__sub(a,b)
 	return c
 end
 
+-- the result of * is a Vector, cross multi of Vectors, or number multi like 5 * a
+	-- for productive multi, see __pow
 function Vector3.__mul(a,b)
 	if 	type(a) == "table" and a.CLASS == "Vector3" and
 		type(b) == "table" and b.CLASS == "Vector3" then
@@ -66,15 +90,17 @@ function Vector3.__mul(a,b)
 		local c = Vector3:create(b.x * a, b.y * a, b.z * a)
 		return c
 	end
+	return Vector3:create()
 end
 
 function Vector3.__div(a,b)
-	if type(b) == "number" then
+	if type(b) == "number" and b ~= 0 then
 		return a * (1/b)
 	end
-	return nil
+	return Vector3:create()
 end
 
+-- the result of ^ is a number : productive multi, you can write a ^ a, or a ^ 2
 function Vector3.__pow(a,b)
 	if type(b) == "number" then
 		if b == 2 then
@@ -88,6 +114,7 @@ function Vector3.__pow(a,b)
 	if type(b) == "table" and b.CLASS == "Vector3" then
 		return a.x * b.x + a.y * b.y + a.z * b.z
 	end
+	return Vector3:create()
 end
 
 function Vector3.__eq(a,b)
@@ -97,6 +124,8 @@ end
 --function Vector3.__lt(a,b)  <
 --function Vector3.__le(a,b)  <=
 
+-- remember to use : rather than .
+-- actually it is the same as a ^ a or a ^ 2
 function Vector3:squlen()
 	return self.x * self.x + self.y * self.y + self.z * self.z
 end
@@ -105,8 +134,10 @@ function Vector3:len()
 	return math.sqrt(self:squlen())
 end
 
-function Vector3:Nor()
-	return Vector3:create(self.x / self:len(), self.y / self:len(), self.z / self:len())
+-- Normalize to len == 1
+function Vector3:nor()
+	--return Vector3:create(self.x / self:len(), self.y / self:len(), self.z / self:len())
+	return Vector3:create(self/self:len())
 end
 --function normalize
 --function angle axis
@@ -116,12 +147,14 @@ function Vector3:__tostring()
 end
 
 -- need to require Quaternion to use this:
-function Vector3:rotate(q)
+	-- should create a new Vector, don't change the self
+function Vector3:rotatedby(q)
 	if type(q) == "table" and q.CLASS == "Quaternion" then
 		--self = Vec3:create(q:toRotate(self))
 		return q:toRotate(self)
 	else
 		print("In Vector3:rotate, para not a Quaternion")
+		return Vector3:create()
 	end
 end
 

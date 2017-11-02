@@ -26,9 +26,19 @@ function Matrix3:create(Matconfig,x12,x13,x21,x22,x23,x31,x32,x33)
 		return instance
 	end
 
-	instance[1] = {Matconfig,x12,x13}
-	instance[2] = {x21,x22,x23}
-	instance[3] = {x31,x32,x33}
+	if 	type(Matconfig) == "number" and type(x12) == "number" and type(x13) == "number" and
+		type(x21) == "number" and type(x22) == "number" and type(x23) == "number" and
+		type(x31) == "number" and type(x32) == "number" and type(x33) == "number" then
+
+		instance[1] = {Matconfig,x12,x13}
+		instance[2] = {x21,x22,x23}
+		instance[3] = {x31,x32,x33}
+		return instance
+	end
+
+	instance[1] = {0,0,0}
+	instance[2] = {0,0,0}
+	instance[3] = {0,0,0}
 
 	return instance
 end
@@ -63,7 +73,8 @@ function Matrix3.__sub(a,b)
 end
 
 function Matrix3.__mul(a,b)
-	if a.CLASS == "Matrix3" and b.CLASS == "Vector3" then
+	if 	type(a) == "table" and a.CLASS == "Matrix3" and 
+		type(b) == "table" and b.CLASS == "Vector3" then
 		local c = Vec3:create()
 		c.x = a[1][1] * b.x + a[1][2] * b.y + a[1][3] * b.z
 		c.y = a[2][1] * b.x + a[2][2] * b.y + a[2][3] * b.z
@@ -71,7 +82,8 @@ function Matrix3.__mul(a,b)
 		return c
 	end
 
-	if a.CLASS == "Matrix3" and b.CLASS == "Matrix3" then
+	if type(a) == "table" and a.CLASS == "Matrix3" and 
+		type(b) == "table" and b.CLASS == "Matrix3" then
 		local c = Matrix3:create()
 		for i = 1,3 do
 			for j = 1,3 do
@@ -84,7 +96,27 @@ function Matrix3.__mul(a,b)
 		return c
 	end
 
-	return nil
+	if type(a) == "number" then
+		local c = Matrix3:create(b)
+		for i = 1,3 do
+			for j = 1,3 do
+				c[i][j] = b[i][j] * a
+			end
+		end
+		return c
+	end
+
+	if type(b) == "number" then
+		local c = Matrix3:create(a)
+		for i = 1,3 do
+			for j = 1,3 do
+				c[i][j] = a[i][j] * b
+			end
+		end
+		return c
+	end
+
+	return Matrix3.create()
 end
 
 function Matrix3.__eq(a,b)
@@ -98,6 +130,7 @@ function Matrix3.__eq(a,b)
 	return T
 end
 
+-- |A|
 function Matrix3:determinant()
 	local A = 0;
 	A = A + self[1][1] * (self[2][2] * self[3][3] - self[2][3] * self[3][2])
@@ -108,6 +141,10 @@ end
 function Matrix3:A()
 	return self:determinant()
 end
+
+-- to be filled:
+-- function reverse
+-- function A*
 
 function Matrix3:__tostring()
 	str = 		 "[" .. self[1][1] .. " " .. self[1][2] .. " " .. self[1][3] .. " \n"

@@ -3,26 +3,6 @@ local Vec3 = require("Vector3")
 local Quaternion = {CLASS = "Quaternion"}
 Quaternion.__index = Quaternion
 
-function Quaternion:createFromRotation(x,y,z,th)
-	local halfth
-	local v
-	if type(x) == "table" and x.CLASS == "Vector3" then
-		halfth = y / 2
-		v = x / x:len()
-		return self:create(v * math.sin(halfth),math.cos(halfth))
-	end
-	if 	type(x) == "number" and 
-		type(y) == "number" and
-		type(z) == "number" and
-		type(th) == "number" then
-		halfth = th / 2
-		v = Vec3:create(x,y,z)
-		v = v / v:len()
-		return self:create(v * math.sin(halfth),math.cos(halfth))
-	end
-	return self:create(0,0,0,0)
-end
-
 function Quaternion:create(x,y,z,w)
 	local instance = {}
 	setmetatable(instance,self)
@@ -45,6 +25,27 @@ function Quaternion:create(x,y,z,w)
 	instance.v = Vector3:create(0,0,0)
 	instance.w = 0
 	return instance;
+end
+
+function Quaternion:createFromRotation(x,y,z,th)
+	local halfth
+	local v
+	if type(x) == "table" and x.CLASS == "Vector3" then
+		halfth = y / 2
+		v = x / x:len()
+		v = x:nor()
+		return self:create(v * math.sin(halfth),math.cos(halfth))
+	end
+	if 	type(x) == "number" and 
+		type(y) == "number" and
+		type(z) == "number" and
+		type(th) == "number" then
+		halfth = th / 2
+		v = Vec3:create(x,y,z)
+		v = v:nor()
+		return self:create(v * math.sin(halfth),math.cos(halfth))
+	end
+	return self:create(0,0,0,0)
 end
 
 function Quaternion.__add(a,b)
@@ -76,7 +77,10 @@ end
 
 --inverse
 function Quaternion:inv()
-	return Quaternion:create(-self.v/self:len(),self.w/self:len())
+	if self:len() ~= 0 then
+		return Quaternion:create(-self.v/self:len(),self.w/self:len())
+	end
+	return Quaternion:create(0,0,0,0)
 end
 
 function Quaternion:__tostring()
@@ -85,19 +89,20 @@ function Quaternion:__tostring()
 	return c
 end
 
+-- returns a vector, is a is not a vector, returns a whatever it is
 function Quaternion:toRotate(a)
 	if type(a) == "table" and a.CLASS == "Vector3" then
 		---[[
 		local p = Quaternion:create(a,0)
 		local res = self * p
 		res = res * self:inv()
-		a = Vec3:create(res.v)
+		local b = Vec3:create(res.v)
 		--]]
-		return a
+		return b
 	else
 		print("In Quaternion:toRotate, para not a Vector3")
+		return a
 	end
-	return a
 end
 
 return Quaternion

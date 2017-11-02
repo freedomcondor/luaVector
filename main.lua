@@ -88,5 +88,5 @@ a = Qua:create(axis * math.sin(th/2),math.cos(th/2))
 print(a)
 b = Vec3:create(1,0,0)
 
-b = b:rotate(aa)
+b = b:rotatedby(aa)
 print(b)
