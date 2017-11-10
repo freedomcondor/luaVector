@@ -147,6 +147,7 @@ end
 -- function A*
 
 function Matrix3:__tostring()
+	local str
 	str = 		 "[" .. self[1][1] .. " " .. self[1][2] .. " " .. self[1][3] .. " \n"
 	str = str .. " " .. self[2][1] .. " " .. self[2][2] .. " " .. self[2][3] .. " \n"
 	str = str .. " " .. self[3][1] .. " " .. self[3][2] .. " " .. self[3][3] .. "]"
