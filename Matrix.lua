@@ -319,7 +319,7 @@ function Matrix:link(y,z)
 		end
 	else
 		temp = self:T()
-		local c = temp:link(y)
+		local c = temp:link(y,"column")
 		return c:T()
 	end
 	print("Matrix link : makes no sense code 2")
