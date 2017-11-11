@@ -42,7 +42,11 @@ function Matrix:create(x,y,z)
 			instance[i] = {}
 			local temp1 = temp[i] or {}
 			for j = 1,instance.m do
-				instance[i][j] = temp1[j] or 0
+				if z == "I" and i == j then
+					instance[i][j] = 1
+				else
+					instance[i][j] = temp1[j] or 0
+				end
 			end
 		end
 		return instance
@@ -113,7 +117,6 @@ function Matrix.__sub(a,b)
 	return c
 end
 
----------------------------------------  TO DO
 function Matrix.__mul(a,b)
 	-- Matrix meet Vector
 	if 	type(a) == "table" and a.CLASS == "Matrix" and 
@@ -225,7 +228,7 @@ function Matrix.__eq(a,b)
 end
 
 function Matrix:transpose()
-	c = Matrix:create(self.m,self.n)
+	local c = Matrix:create(self.m,self.n)
 	for i = 1, self.m do
 		for j = 1, self.n do
 			c[i][j] = self[j][i]
@@ -239,9 +242,11 @@ function Matrix:T()
 	return self:transpose()
 end
 
----------------------------------------  TO DO
 -- add vector
-	-- a.addVec(<a vector>, 3, "column")
+	-- a.addVec(<a vector>, 3, "column")  3 means addVec at row/column 3
+function Matrix:addVector(x,y,z)
+	return self:addVec(x,y,z)
+end
 function Matrix:addVec(x,y,z)
 	if 	type(x) == "table" and x.CLASS == "Vector" and 
 		type(y) == "number" then
@@ -265,8 +270,140 @@ function Matrix:addVec(x,y,z)
 	print("Matrix addVec: makes no sense")
 	return nil
 end
+
 -- take vector
+	-- a.takeVec(3, "column")  3 means take Vec at row/column 3 ,returns a vector
+function Matrix:takeVector(y,z)
+	return self:takeVec(y,z)
+end
+function Matrix:takeVec(y,z)
+	if z == "column" or z == "col" then
+		local temp = self:T()
+		temp = temp:takeVec(y)
+		return temp
+	else
+		if y <= self.n then
+			return Vec:create(self[y])
+		else
+			print("Matrix takeVec: makes no sense")
+			return nil
+		end
+	end
+	print("Matrix takeVec: makes no sense")
+	return nil
+end
+
+-- link Matrix   A:link(B) = A|B
+function Matrix:link(y,z)
+	local temp
+	if z == "column" or z == "col" then
+		if self.n == y.n then
+			if type(y) == "table" and y.CLASS == "Vector" then
+				temp = Matrix:create(y.n,1)
+				temp = temp:addVec(y,1,"col")
+			else
+				temp = y
+			end
+
+			local c = Matrix:create(self)
+			for i = 1, self.n do
+				for j = 1, temp.m do
+					c[i][j + c.m] = temp[i][j]
+				end
+			end
+			c.m = c.m + temp.m
+			return c
+		else
+			print("Matrix link : makes no sense code 1")
+			return nil
+		end
+	else
+		temp = self:T()
+		local c = temp:link(y)
+		return c:T()
+	end
+	print("Matrix link : makes no sense code 2")
+	return nil
+end
+
+-- triangle
+	--[[
+		make a matrix looks like:
+			* * * * *|* * * if m > n
+			0 * * * *|
+			0 0 * * *|
+			0 0 0 * *|
+			0 0 0 0 *|* * *
+			---------+----
+			0 0 0 0 0|
+			0       0| 
+			if n > m
+	--]]
+function Matrix:tri()
+	return self:triangle()
+end
+function Matrix:triangle()
+	local c = Matrix:create(self)
+	local v
+	local n
+	if c.m > c.n then n = c.n
+				 else n = c.m end
+		-- stop at the min of m and n
+			--if n > m, we should still stop at row m, not row n
+
+	for i = 1, n do
+		v = c:takeVec(i)
+		for j = i+1, c.n do
+			if (c[i][i] ~= 0) then
+				c = c:addVec(-v * c[j][i] / c[i][i],j)
+			end
+		end
+	end
+	return c
+end
+
+-- diagonal
+	--[[
+		make a matrix looks like:
+			* 0 0 0 0|* * * if m > n
+			0 * 0 0 0|
+			0 0 * 0 0|
+			0 0 0 * 0|
+			0 0 0 0 *|* * *
+			---------+----
+			0 0 0 0 0|
+			0       0| 
+			if n > m
+	--]]
+function Matrix:dia()
+	return self:diagonal()
+end
+function Matrix:diagonal()
+	local c = self:triangle()
+	local v
+	local n
+	if c.m > c.n then n = c.n
+				 else n = c.m end
+		-- stop at the min of m and n
+			--if n > m, we should still stop at row m, not row n
+
+	for ii = 1, n do
+		local i = n + 1 - ii
+		v = c:takeVec(i)
+		for jj = 1, i-1 do
+			local j = i - jj
+			if (c[i][i] ~= 0) then
+				c = c:addVec(-v * c[j][i] / c[i][i],j)
+			end
+		end
+	end
+	return c
+end
+
 -- |A|
+function Matrix:A()
+	return self:determinant()
+end
 function Matrix:determinant()
 	local A = 0;
 	A = A + self[1][1] * (self[2][2] * self[3][3] - self[2][3] * self[3][2])
@@ -274,20 +411,22 @@ function Matrix:determinant()
 	A = A + self[1][3] * (self[2][1] * self[3][2] - self[2][2] * self[3][1])
 	return A
 end
-function Matrix:A()
-	return self:determinant()
-end
 
+---------------------------------------  TO DO
 -- to be filled:
 -- function reverse
 -- function A*
-
+-----------------------------------------------
 function Matrix:__tostring()
 	local str = "\t\n"
 	for i = 1, self.n do
 		if i == 1 then str = str .. "\t[[" else str = str .. "\t [" end
 		for j = 1, self.m do
-			str = str .. self[i][j]
+			if self[i][j] % 1 ~= 0 then -- not a integer
+				str = str .. string.format("%7.3f",self[i][j])-- .. "\t"
+			else						-- a integer
+				str = str .. string.format("%7d",self[i][j])-- .. "\t"
+			end
 			if j ~= self.m  then str = str .. ","
 							else str = str .. "]" end
 		end

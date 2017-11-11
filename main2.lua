@@ -94,5 +94,34 @@ print(c)
 print("transpose")
 c = c:T()
 print(c)
+
+----------
+print("add and take vec")
+print("before add",c)
 c = c:addVec(Vec:create{1,1,1},2,"col")
+print("after add",c)
 print(c)
+
+print("before take",c)
+d = c:takeVec(2,"col")
+print("after take",c)
+print(c)
+print(d)
+
+c = c:link(d,"col")
+print(c)
+
+c = c:link(Mat:create(3,3,"I"),"col")
+print(c)
+
+c[3][3] = 2
+print("tri")
+--c = c:T()
+d = c:tri()
+print("after tri",d)
+
+print("diag")
+print("c = ",c)
+--d = c:T():dia()
+d = c:dia()
+print("d = ",d)
