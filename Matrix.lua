@@ -375,16 +375,36 @@ function Matrix:triangle()
 				 else n = c.m end
 		-- stop at the min of m and n
 			--if n > m, we should still stop at row m, not row n
+	
+	local excMark = Mat:create(self.n,1)
+	for i = 1, self.n do excMark[i][1] = i end
+
+	local success = true
 
 	for i = 1, n do
+		local flag = 1
+		if (c[i][i] == 0) then
+			flag = 0
+			for j = i+1, c.n do
+				if c[j][i] ~= 0 then
+					c = c:exc(i,j)
+					excMark = excMark:exc(i,j)
+					flag = 1
+					break
+				end
+			end
+		end
 		v = c:takeVec(i)
 		for j = i+1, c.n do
-			if (c[i][i] ~= 0) then
+			if (flag == 1) then
 				c = c:addVec(-v * c[j][i] / c[i][i],j)
+			else
+				success = false
 			end
 		end
 	end
-	return c
+
+	return c, excMark:takeVec(1,"col"), success
 end
 
 -- diagonal
@@ -404,9 +424,13 @@ function Matrix:dia()
 	return self:diagonal()
 end
 function Matrix:diagonal()
-	local c = self:triangle()
+	local c,excMark,success = self:triangle()
 	local v
 	local n
+
+	local exctemp = Mat:create(self.n,1)
+	excMark = exctemp:addVector(excMark,1,"col")
+
 	if c.m > c.n then n = c.n
 				 else n = c.m end
 		-- stop at the min of m and n
@@ -422,7 +446,7 @@ function Matrix:diagonal()
 			end
 		end
 	end
-	return c
+	return c,excMark:takeVector(1,"col"),success
 end
 
 -- |A|

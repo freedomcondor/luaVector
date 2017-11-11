@@ -123,8 +123,12 @@ print("after tri",d)
 print("diag")
 print("c = ",c)
 --d = c:T():dia()
+d = c:tri()
+print("d = ",d)
+
 d = c:dia()
 print("d = ",d)
 
 d = d:exc(2,3,"col")
 print("d = ",d)
+print("d = ",d:tri())
