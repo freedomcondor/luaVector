@@ -62,6 +62,37 @@ print(b)
 c = Mat:create(b)
 print(c)
 
-print("+")
+print("+-")
 print(a+b)
 print(a-b)
+
+print("*")
+
+a = Mat:create(2,3,{{2,3},{3}})
+b = Vec:create{3,4,5}
+c = a * b
+print("a=",a)
+print("b=",b)
+print("c=",c)
+
+a = Mat:create(2,3,{{2,3},
+					{3}})
+b = Mat:create(3,3,{{1},
+					{0,2},
+					{0,0,2}})
+c = a * b
+print(a)
+print(b)
+print(c)
+
+c = c * 3
+print(c)
+c = 2 * c
+print(c)
+
+----------
+print("transpose")
+c = c:T()
+print(c)
+c = c:addVec(Vec:create{1,1,1},2,"col")
+print(c)

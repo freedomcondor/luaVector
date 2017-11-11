@@ -20,6 +20,7 @@ function Matrix:create(x,y,z)
 
 		--]] 
 
+	-- (<a matrix>)
 	if type(x) == "table" and x.CLASS == "Matrix" then
 		instance.n = x.n	
 		instance.m = x.m
@@ -32,6 +33,7 @@ function Matrix:create(x,y,z)
 		return instance
 	end
 
+	-- (n,m,{})  give {}, if {} is nil, give 0
 	if type(x) == "number" and type(y) == "number" then
 		instance.n = x
 		instance.m = y
@@ -46,6 +48,7 @@ function Matrix:create(x,y,z)
 		return instance
 	end
 
+	-- ( {{},{}} ) 
 	if type(x) == "table" and type(x[1]) == "table" then
 		local n = 0
 		local m = 0
@@ -68,7 +71,7 @@ function Matrix:create(x,y,z)
 		end
 		return instance
 	end
-
+	
 	print("matrix create: makes no sence")
 	return nil
 end
@@ -112,22 +115,64 @@ end
 
 ---------------------------------------  TO DO
 function Matrix.__mul(a,b)
+	-- Matrix meet Vector
 	if 	type(a) == "table" and a.CLASS == "Matrix" and 
-		type(b) == "table" and b.CLASS == "Vector3" then
-		local c = Vec:create()
-		c.x = a[1][1] * b.x + a[1][2] * b.y + a[1][3] * b.z
-		c.y = a[2][1] * b.x + a[2][2] * b.y + a[2][3] * b.z
-		c.z = a[3][1] * b.x + a[3][2] * b.y + a[3][3] * b.z
+		type(b) == "table" and b.CLASS == "Vector" then
+		if a.m ~= b.n then
+			print("in Matrix * : makes no sense")
+			return nil
+		end
+
+		-- a n * m matrix * a m vector = a n vector
+
+		local c = Vec:create(a.n)
+		for i = 1, a.n do
+			c[i] = 0
+			for j = 1, a.m do
+				c[i] = c[i] + a[i][j] * b[j]
+			end
+		end
 		return c
 	end
 
+	-- Vec meet Matrix
+		-- it would never happen because it will fall into vector's __mul
+	if type(a) == "table" and a.CLASS == "Vector" and 
+		type(b) == "table" and b.CLASS == "Matrix" then
+		print("this case")
+		if a.n ~= b.n then
+			print("in Matrix * : makes no sense")
+			return nil
+		end
+		
+		-- a n vector * a n * m vector = a m vector
+
+		local c = Vec:create(b.m)
+		for i = 1,b.m do
+			c[0] = 0
+			for j = 1, a.n do
+				c[i] = c[i] + a[i] * b[j][i]
+			end
+		end
+
+		return c
+	end
+
+	-- Matrix meet Matrix
 	if type(a) == "table" and a.CLASS == "Matrix" and 
 		type(b) == "table" and b.CLASS == "Matrix" then
-		local c = Matrix:create()
-		for i = 1,3 do
-			for j = 1,3 do
+		if a.m ~= b.n then
+			print("in Matrix * : makes no sense")
+			return nil
+		end
+		
+		-- a  n x k vector * a k * m vector = n m vector
+
+		local c = Matrix:create(a.n,b.m)
+		for i = 1,a.n do
+			for j = 1,b.m do
 				c[i][j] = 0
-				for k = 1,3 do
+				for k = 1,a.m do
 					c[i][j] = c[i][j] + a[i][k] * b[k][j]
 				end
 			end
@@ -135,10 +180,12 @@ function Matrix.__mul(a,b)
 		return c
 	end
 
+	-- number
+		-- to be filled
 	if type(a) == "number" then
 		local c = Matrix:create(b)
-		for i = 1,3 do
-			for j = 1,3 do
+		for i = 1,b.n do
+			for j = 1,b.m do
 				c[i][j] = b[i][j] * a
 			end
 		end
@@ -147,15 +194,16 @@ function Matrix.__mul(a,b)
 
 	if type(b) == "number" then
 		local c = Matrix:create(a)
-		for i = 1,3 do
-			for j = 1,3 do
+		for i = 1,a.n do
+			for j = 1,a.m do
 				c[i][j] = a[i][j] * b
 			end
 		end
 		return c
 	end
 
-	return Matrix.create()
+	print("in matrix * : nothing happened")
+	return nil
 end
 
 function Matrix.__eq(a,b)
@@ -176,7 +224,48 @@ function Matrix.__eq(a,b)
 	return T
 end
 
+function Matrix:transpose()
+	c = Matrix:create(self.m,self.n)
+	for i = 1, self.m do
+		for j = 1, self.n do
+			c[i][j] = self[j][i]
+		end
+	end
+
+	return c
+end
+
+function Matrix:T()
+	return self:transpose()
+end
+
 ---------------------------------------  TO DO
+-- add vector
+	-- a.addVec(<a vector>, 3, "column")
+function Matrix:addVec(x,y,z)
+	if 	type(x) == "table" and x.CLASS == "Vector" and 
+		type(y) == "number" then
+		local c = Matrix:create(self)
+		if z == "column" or z == "col" then
+			c = c:T()
+			c = c:addVec(x,y)
+			c = c:T()
+		else
+			if x.n == self.m and y <= self.n then
+				for i = 1, x.n do
+					c[y][i] = c[y][i] + x[i]
+				end
+			else
+				print("Matrix addVec: makes no sense")
+				return nil
+			end
+		end
+		return c
+	end
+	print("Matrix addVec: makes no sense")
+	return nil
+end
+-- take vector
 -- |A|
 function Matrix:determinant()
 	local A = 0;
@@ -194,9 +283,9 @@ end
 -- function A*
 
 function Matrix:__tostring()
-	local str = ""
+	local str = "\t\n"
 	for i = 1, self.n do
-		if i == 1 then str = str .. "[[" else str = str .. " [" end
+		if i == 1 then str = str .. "\t[[" else str = str .. "\t [" end
 		for j = 1, self.m do
 			str = str .. self[i][j]
 			if j ~= self.m  then str = str .. ","
