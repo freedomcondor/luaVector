@@ -131,4 +131,6 @@ print("d = ",d)
 
 d = d:exc(2,3,"col")
 print("d = ",d)
-print("d = ",d:tri())
+d = d:tri()
+print("d = ",d)
+print("d = ",d:takeDia())
