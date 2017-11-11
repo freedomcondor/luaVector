@@ -293,6 +293,31 @@ function Matrix:takeVec(y,z)
 	return nil
 end
 
+-- exchange row/col
+function Matrix:exc(x,y,z)
+	return self:exchange(x,y,z)
+end
+function Matrix:exchange(x,y,z)
+	if z == "column" or z == "col" then
+		local temp = self:T()
+		temp = temp:exchange(x,y)
+		return temp:T()
+	end
+	if type(x)~= "number" or x > self.n or
+	   type(y)~= "number" or y > self.n then
+	   	print("in Matrix exchange: index out of range")
+		return nil
+	end
+
+	local c = Matrix:create(self)
+	local v = c:takeVec(x)
+	for j = 1,c.m do
+		c[x][j] = c[y][j]
+		c[y][j] = v[j]
+	end
+	return c
+end
+
 -- link Matrix   A:link(B) = A|B
 function Matrix:link(y,z)
 	local temp

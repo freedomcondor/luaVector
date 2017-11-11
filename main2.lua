@@ -125,3 +125,6 @@ print("c = ",c)
 --d = c:T():dia()
 d = c:dia()
 print("d = ",d)
+
+d = d:exc(2,3,"col")
+print("d = ",d)
