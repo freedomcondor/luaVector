@@ -415,7 +415,7 @@ function Matrix:triangle()
 		v = c:takeVec(i)
 		for j = i+1, c.n do
 			if (flag == 1) then
-				c = c:addVec(-v * c[j][i] / c[i][i],j)
+				c = c:addVec(-v * (c[j][i] / c[i][i]),j)
 			else
 				success = false
 			end
@@ -460,7 +460,7 @@ function Matrix:diagonal()
 		for jj = 1, i-1 do
 			local j = i - jj
 			if (c[i][i] ~= 0) then
-				c = c:addVec(-v * c[j][i] / c[i][i],j)
+				c = c:addVec(-v * (c[j][i] / c[i][i]),j)
 			end
 		end
 	end
