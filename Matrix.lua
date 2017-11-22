@@ -396,6 +396,9 @@ function Matrix:tri()
 	return self:triangle()
 end
 function Matrix:triangle()
+	-- should have a para to indicate threshold for almostZero 
+		--triangle(thres)
+		--	almostZero(xx,thres)
 	local c = Matrix:create(self)
 	local v
 	local n
@@ -457,6 +460,9 @@ function Matrix:dia()
 	return self:diagonal()
 end
 function Matrix:diagonal()
+	-- should have a para to indicate threshold for almostZero 
+		--triangle(thres)
+		--	almostZero(xx,thres)
 	local c,excMark,success = self:triangle()
 	local v
 	local n
