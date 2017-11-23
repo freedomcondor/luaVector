@@ -1,7 +1,7 @@
 local Vector = {CLASS = "Vector"}
 Vector.__index = Vector
 
-function Vector:create(x)
+function Vector:create(x,y)
 	local instance = {}
 	setmetatable(instance,self)
 	self.__index = self
@@ -28,8 +28,9 @@ function Vector:create(x)
 
 	if 	type(x) == "number" then
 		instance.n = x
+		local temp = y or {}
 		for i = 1,x do
-			instance[i] = 0
+			instance[i] = temp[i] or 0
 		end
 		return instance
 	end
