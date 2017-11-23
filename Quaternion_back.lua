@@ -22,18 +22,17 @@ function Quaternion:create(x,y,z,w)
 		return instance
 	end
 
-	instance.v = Vec3:create(0,0,0)
+	instance.v = Vector3:create(0,0,0)
 	instance.w = 0
 	return instance;
 end
 
 function Quaternion:createFrom4Vecs(_abc_o,_pqr_o,_abc,_pqr)
 	-- give 4 vectors, rotation from the from the first two to last two
-	local abc = _abc:nor()
-	local pqr = _pqr:nor()
-	local abc_o = _abc_o:nor()
-	local pqr_o = _pqr_o:nor()
-
+	local abc = _abc
+	local pqr = _pqr
+	local abc_o = _abc_o
+	local pqr_o = _pqr_o
 	local axis = (abc-abc_o) * (pqr - pqr_o)
 	axis = axis:nor()
 
