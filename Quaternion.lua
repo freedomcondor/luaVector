@@ -52,16 +52,17 @@ end
 function Quaternion:createFromRotation(x,y,z,th)
 	local halfth
 	local v
-	if type(x) == "table" and x.CLASS == "Vector3" then
+	if type(x) == "table" and x.CLASS == "Vector3" and x:len() ~= 0 then
 		halfth = y / 2
 		v = x / x:len()
 		v = x:nor()
 		return self:create(v * math.sin(halfth),math.cos(halfth))
 	end
-	if 	type(x) == "number" and 
+	if 	type(x) == "number" and
 		type(y) == "number" and
 		type(z) == "number" and
-		type(th) == "number" then
+		type(th) == "number" and
+		(x ~=0 or y ~= 0 or z ~= 0)then
 		halfth = th / 2
 		v = Vec3:create(x,y,z)
 		v = v:nor()
@@ -113,6 +114,9 @@ end
 
 -- returns a vector, is a is not a vector, returns a whatever it is
 function Quaternion:toRotate(a)
+	if self.v:len() == 0 and self.w == 0 then
+		return a
+	end
 	if type(a) == "table" and a.CLASS == "Vector3" then
 		---[[
 		local p = Quaternion:create(a,0)
