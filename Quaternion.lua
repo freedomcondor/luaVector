@@ -29,6 +29,9 @@ end
 
 function Quaternion:createFrom4Vecs(_abc_o,_pqr_o,_abc,_pqr)
 	-- give 4 vectors, rotation from the from the first two to last two
+	-- some problem for specific situation
+	-- 		only general case and
+	-- 		only work for right angle and pqr_o = pqr
 	local abc = _abc:nor()
 	local pqr = _pqr:nor()
 	local abc_o = _abc_o:nor()
