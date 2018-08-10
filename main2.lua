@@ -134,3 +134,7 @@ print("d = ",d)
 d = d:tri()
 print("d = ",d)
 print("d = ",d:takeDia())
+
+print("unit and reverse test")
+print(b)
+b:reverse()

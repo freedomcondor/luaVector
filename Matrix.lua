@@ -1,3 +1,10 @@
+--------------------------------------------------------------------
+--	Weixu ZHU (Harry)
+--		zhuweixu_harry@126.com
+--	Version: 1.1
+--		fixed: Matrix link
+--		added: Matrix reverse
+--------------------------------------------------------------------
 Vec = require("Vector")
 local Matrix = {CLASS = "Matrix"}
 Matrix.__index = Matrix
@@ -336,7 +343,9 @@ function Matrix:exchange(x,y,z)
 	return c
 end
 
--- link Matrix   A:link(B) = A|B
+-- link Matrix   A:link(B,"col") = A|B
+-- 				 A:link(B) = A
+-- 				 			 B
 function Matrix:link(y,z)
 	local temp
 	if z == "column" or z == "col" then
@@ -362,7 +371,7 @@ function Matrix:link(y,z)
 		end
 	else
 		temp = self:T()
-		local c = temp:link(y,"column")
+		local c = temp:link(y:T(),"column")
 		return c:T()
 	end
 	print("Matrix link : makes no sense code 2")
@@ -501,9 +510,40 @@ function Matrix:determinant()
 	return A
 end
 
+function Matrix:unit()
+	local c = Mat:create(self.n, self.m)
+	local n = self.n
+	if self.n > self.m then n = self.m end
+	for i = 1, n do
+		c[i][i] = 1
+	end
+	return c
+end
+
+function Matrix:reverse()
+	if self.n ~= self.m then
+		print("Matrix reverse make no sense!")
+		return 0
+	end
+	local c = self:link(self:unit(),"col")
+	c = c:diagonal()
+	for i = 1, c.n do
+		local temp = c[i][i]
+		for j = 1, c.m do
+			c[i][j] = c[i][j] / temp
+		end
+	end
+	local d = Matrix:create(c.n,c.n)
+	for i = 1, c.n do
+		for j = 1, c.n do
+			d[i][j] = c[i][j + c.n]
+		end
+	end
+	return d
+end
+
 ---------------------------------------  TO DO
 -- to be filled:
--- function reverse
 -- function A*
 -----------------------------------------------
 function Matrix:__tostring()
