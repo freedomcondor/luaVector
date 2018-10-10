@@ -1,3 +1,9 @@
+--[[
+-- ZHU Weixu
+--   zhuweixu_harry@126.com
+--
+--   version 1.1 : some problems in create from 2 vecs are detected and marked
+--]]
 local Vec3 = require("Vector3")
 
 local Quaternion = {CLASS = "Quaternion"}
