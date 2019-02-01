@@ -61,8 +61,8 @@ c = a * b
 
 ---Quaternion ------------------
 print("-----Qua test------------------")
-a = Qua:create(1,1,1,1)
-b = Qua:create(2,2,2,2)
+a = Qua:createFromHardValue(1,1,1,1)
+b = Qua:createFromHardValue(2,2,2,2)
 print("a = ",a)
 print("b = ",b)
 print("a + b = ",a+b)
@@ -82,10 +82,11 @@ print("-----rotation test------------------")
 th = math.pi
 axis = Vec3:create(0,0,2)
 
-aa = Qua:createFromRotation(axis,th)
+aa = Qua:create(axis,th)
 
-a = Qua:create(axis * math.sin(th/2),math.cos(th/2))
-print(a)
+a = Qua:createFromHardValue(axis * math.sin(th/2),math.cos(th/2))
+print("a = ", a)
+print("aa = ", aa)
 b = Vec3:create(1,0,0)
 
 b = b:rotatedby(aa)
