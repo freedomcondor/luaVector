@@ -46,6 +46,8 @@ b = a * b
 print(a == b)
 print(a:A())
 
+print("a.rev = ", a:reverse())
+
 ---Mat and Vec multi----------------
 print("-----multi test------------------")
 a = Vec3:create(1,2,3)

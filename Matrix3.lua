@@ -1,3 +1,11 @@
+----------------------------------------
+-- Weixu Zhu
+-- 		zhuweixu_harry@126.com
+-- 	Version 1.1:	02/04/2019
+-- 		add reverse and adj
+--
+-- 	not perfect, use with caution
+----------------------------------------
 Vec3 = require("Vector3")
 local Matrix3 = {CLASS = "Matrix3"}
 Matrix3.__index = Matrix3
@@ -116,7 +124,7 @@ function Matrix3.__mul(a,b)
 		return c
 	end
 
-	return Matrix3.create()
+	return Matrix3:create()
 end
 
 function Matrix3.__eq(a,b)
@@ -131,6 +139,9 @@ function Matrix3.__eq(a,b)
 end
 
 -- |A|
+function Matrix3:det()
+	return self:determinant()
+end
 function Matrix3:determinant()
 	local A = 0;
 	A = A + self[1][1] * (self[2][2] * self[3][3] - self[2][3] * self[3][2])
@@ -144,7 +155,32 @@ end
 
 -- to be filled:
 -- function reverse
--- function A*
+function Matrix3:rev()
+	return self:reverse()
+end
+function Matrix3:reverse()
+	if self:determinant() == 0 then
+		return self:create()
+	else
+		return self:adj() * (1/self:determinant())
+	end
+end
+-- function A* adj()
+function Matrix3:adj()
+	return Matrix3:create(
+		 (self[2][2] * self[3][3] - self[2][3] * self[3][2]),
+		-(self[2][1] * self[3][3] - self[2][3] * self[3][1]),
+		 (self[2][1] * self[3][2] - self[2][2] * self[3][1]),
+
+		-(self[1][2] * self[3][3] - self[1][3] * self[3][2]),
+		 (self[1][1] * self[3][3] - self[1][3] * self[3][1]),
+		-(self[1][1] * self[3][2] - self[1][2] * self[3][1]),
+
+		 (self[1][2] * self[2][3] - self[1][3] * self[2][2]),
+		-(self[1][1] * self[2][3] - self[1][3] * self[2][1]),
+		 (self[1][1] * self[2][2] - self[1][2] * self[2][1])
+	)
+end
 
 function Matrix3:__tostring()
 	local str
